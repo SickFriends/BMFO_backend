@@ -7,4 +7,6 @@ urlpatterns = [
     path('userview/', userview, name='userview'),
     path('getproduct/', getProduct, name='getproduct'),
     path('add/',addProduct),
+    path('user/',OAuth),
+    path('all/',allProduct)
 ]

@@ -1,3 +1,4 @@
+from itertools import product
 from os import stat
 import re
 from unicodedata import category
@@ -10,6 +11,7 @@ import jwt
 from django.conf import settings
 from .models import CustomUser, Product
 import json
+import requests
 
 @api_view(['POST'])
 def join(request):
@@ -58,9 +60,38 @@ def getProduct(request):
     return Response(data = items)
 
 
+@api_view(['GET'])
+def allProduct(request):
+    products = Product.objects.all()
+    items = []
+    for i in products:
+        serializer = ProductSerializer(i)
+        items.append(serializer.data)
+    
+    return Response(data = items)
+        
+        
+
 @api_view(['POST'])
 def addProduct(request):
     product = ProductSerializer(data = request.data)
     if product.is_valid() :
         product.save()
     return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def OAuth(request):
+    authcode = request.GET['code']
+    if authcode == None :
+        return Response("BAD REQUEST")
+    
+    BSM_OAUTH_CLIENT_ID = '0c956343'
+    BSM_OAUTH_CLIENT_SECRET = '10dc62551cb6e2db523399e2fc1b2fbc'
+    GET_TOKEN_URL = 'https://bssm.kro.kr/api/oauth/token'
+    
+    response = requests.post(GET_TOKEN_URL, json = {'clientId' : BSM_OAUTH_CLIENT_ID,
+                                                    'clientSecret' : BSM_OAUTH_CLIENT_SECRET,
+                                                    'authcode' : authcode})
+    print(response)
+    return Response(data = response)
